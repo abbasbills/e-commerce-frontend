@@ -36,8 +36,8 @@ export default function ProductCard({ product, index = 0 }: Props) {
   };
 
   const mainImage = product.images?.[0];
-  const imgSrc    = mainImage?.url
-    ? `${process.env.NEXT_PUBLIC_API_URL}${mainImage.url}`
+  const imgSrc = mainImage?.url
+    ? (mainImage.url.startsWith('http') ? mainImage.url : `${process.env.NEXT_PUBLIC_API_URL}${mainImage.url}`)
     : null;
 
   return (

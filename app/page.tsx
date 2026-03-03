@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Sparkles, ShieldCheck, Truck, Star, ChevronRight, X, ShoppingCart, Heart, Ruler, CheckCircle2 } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchProducts, fetchCollections } from '@/store/slices/productsSlice';
 import ProductCard from '@/components/store/ProductCard';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
@@ -35,10 +33,9 @@ const FEATURED_ITEMS = [
     reviews: 86,
     tag: 'New Arrival',
     tagColor: 'bg-[#4a4442]',
-    img: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=900&q=80',
-    imgAlt: 'Rustic wooden desk with large Roman numeral wall clock and decor accessories',
-    description:
-      'A gorgeous rustic desk and oversized Roman numeral wall clock set. Crafted from reclaimed wood with a distressed finish, perfect for a farmhouse or vintage-inspired home.',
+    img: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=900&q=80',
+    imgAlt: 'Antique wooden wall clock and desk in a rustic interior',
+    description: 'Desk set',
     details: ['Reclaimed wood construction', 'Oversized Roman numeral clock', 'Built-in desk drawers', 'Handcrafted finish'],
     dimensions: 'Clock: Ø 70 cm | Desk: W 120 cm × D 55 cm × H 78 cm',
   },
@@ -69,23 +66,50 @@ const FEATURES = [
 ];
 
 export default function HomePage() {
-  const dispatch = useAppDispatch();
-  const { products, collections, isLoading } = useAppSelector((s) => s.products);
-  const { token } = useAppSelector((s) => s.auth);
+  const [products, setProducts] = useState<any[]>([]);
+  const [collections, setCollections] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selected, setSelected] = useState<FeaturedItem | null>(null);
   const [added, setAdded] = useState(false);
 
   const handleAddToCart = () => {
-    if (!token) { import('react-hot-toast').then(({ default: toast }) => toast.error('Please log in to add items to cart')); return; }
     setAdded(true);
     import('react-hot-toast').then(({ default: toast }) => toast.success(`${selected?.name} added to cart!`));
     setTimeout(() => setAdded(false), 2500);
   };
 
+  /* Frontend-only: local products + collections (professional demo data) */
   useEffect(() => {
-    dispatch(fetchProducts({ page: 1, limit: 8 }));
-    dispatch(fetchCollections());
-  }, [dispatch]);
+    const LOCAL_COLLECTIONS = [
+      { _id: 'c1', name: 'Furniture', slug: 'furniture', description: 'Sofas, chairs, tables' },
+      { _id: 'c2', name: 'Bedroom', slug: 'bedroom', description: 'Beds and storage' },
+      { _id: 'c3', name: 'Decor', slug: 'decor', description: 'Vases, clocks, accents' },
+      { _id: 'c4', name: 'Kitchen', slug: 'kitchen', description: 'Cookware & dining' },
+      { _id: 'c5', name: 'Living Room', slug: 'living-room', description: 'Rugs & cushions' },
+    ];
+
+    const LOCAL_PRODUCTS = [
+      { _id: 'p1', name: 'Farmhouse Linen Sofa', price: 285000, discountPrice: 265000, discountPercentage: 7, stock: 12, category: LOCAL_COLLECTIONS[0], images: [{ url: 'https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p2', name: 'Velvet Accent Chair', price: 95000, discountPrice: null, discountPercentage: 0, stock: 20, category: LOCAL_COLLECTIONS[0], images: [{ url: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p3', name: 'Solid Oak Dining Table', price: 340000, discountPrice: 299000, discountPercentage: 12, stock: 6, category: LOCAL_COLLECTIONS[0], images: [{ url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p4', name: 'Farmhouse Bed & Storage Frame', price: 195000, discountPrice: 175000, discountPercentage: 10, stock: 8, category: LOCAL_COLLECTIONS[1], images: [{ url: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p5', name: 'Rattan Bedside Table', price: 48000, discountPrice: null, discountPercentage: 0, stock: 30, category: LOCAL_COLLECTIONS[1], images: [{ url: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p6', name: 'Rustic Wall Clock', price: 52000, discountPrice: null, discountPercentage: 0, stock: 25, category: LOCAL_COLLECTIONS[2], images: [{ url: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p7', name: 'Ceramic Vase Set (3-Piece)', price: 28000, discountPrice: 24000, discountPercentage: 14, stock: 40, category: LOCAL_COLLECTIONS[2], images: [{ url: 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p8', name: 'Cast Iron Cookware Set', price: 78000, discountPrice: 68000, discountPercentage: 13, stock: 15, category: LOCAL_COLLECTIONS[3], images: [{ url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p9', name: 'Handwoven Jute Rug 160×230', price: 65000, discountPrice: null, discountPercentage: 0, stock: 18, category: LOCAL_COLLECTIONS[4], images: [{ url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p10', name: 'Linen Throw Cushions (Set of 4)', price: 36000, discountPrice: 30000, discountPercentage: 17, stock: 50, category: LOCAL_COLLECTIONS[4], images: [{ url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p11', name: 'Marble & Brass Coffee Table', price: 185000, discountPrice: 165000, discountPercentage: 11, stock: 7, category: LOCAL_COLLECTIONS[0], images: [{ url: 'https://images.unsplash.com/photo-1581539250439-c96689b516dd?auto=format&fit=crop&w=900&q=80' }] },
+      { _id: 'p12', name: 'Scented Soy Candle Set', price: 18000, discountPrice: null, discountPercentage: 0, stock: 60, category: LOCAL_COLLECTIONS[2], images: [{ url: 'https://images.unsplash.com/photo-1602028915047-37269d1a73f7?auto=format&fit=crop&w=900&q=80' }] },
+    ];
+
+    // small delay to emulate loading feel
+    setTimeout(() => {
+      setCollections(LOCAL_COLLECTIONS);
+      setProducts(LOCAL_PRODUCTS);
+      setIsLoading(false);
+    }, 300);
+  }, []);
 
   return (
     <div className="space-y-20">
@@ -253,6 +277,41 @@ export default function HomePage() {
             View all products <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
+
+        {/* ── All Products horizontal scroll ── */}
+        {(isLoading || products.length > 0) && (
+          <div className="mt-16">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-sm font-semibold tracking-widest text-[#8B5E3C] uppercase mb-1">Browse the store</p>
+                <h2 className="text-3xl font-extrabold text-[#2d2826]">All Products</h2>
+              </div>
+              <Link href="/products" className="flex items-center gap-1 text-[#736e6c] font-medium hover:text-[#4a4442] text-sm transition-colors">
+                View all <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {isLoading ? (
+              <div className="flex justify-center py-12"><LoadingSpinner /></div>
+            ) : (
+              <div className="relative">
+                {/* fade hints */}
+                <div className="absolute left-0 top-0 bottom-2 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+                <div
+                  className="flex gap-5 overflow-x-auto pb-4 scroll-smooth"
+                  style={{ scrollbarWidth: 'thin', scrollbarColor: '#d4cdc9 transparent' }}
+                >
+                  {products.map((product, i) => (
+                    <div key={product._id} className="flex-shrink-0 w-64">
+                      <ProductCard product={product} index={i} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Product Detail Modal */}
@@ -362,6 +421,23 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
+
+              {/* ── More Products scroll row inside modal ── */}
+              {products.length > 0 && (
+                <div className="border-t border-[#e8e3e1] px-7 sm:px-9 py-7">
+                  <h3 className="text-base font-bold text-[#2d2826] mb-4">More Products</h3>
+                  <div
+                    className="flex gap-4 overflow-x-auto pb-2 scroll-smooth"
+                    style={{ scrollbarWidth: 'thin', scrollbarColor: '#d4cdc9 transparent' }}
+                  >
+                    {products.map((product, i) => (
+                      <div key={product._id} className="flex-shrink-0 w-52">
+                        <ProductCard product={product} index={i} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
